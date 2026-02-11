@@ -6,7 +6,10 @@
     "bunny-database-shell": "./bin/bunny-database-shell"
   },
   "scripts": {
-    "postinstall": "node scripts/install.js"
+    "postinstall": "node scripts/install.js",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset publish"
   },
   "files": [
     "bin",

@@ -15,14 +15,16 @@ import (
 var (
 	flagURL       string
 	flagAuthToken string
+	flagExec      string
 )
 
 func main() {
 	godotenv.Load()
 
 	rootCmd := &cobra.Command{
-		Use:   "bunny-database-shell",
+		Use:   "bunny-database-shell [sql]",
 		Short: "Connect to a Bunny Database shell",
+		Args:  cobra.ArbitraryArgs,
 		RunE: func(c *cobra.Command, args []string) error {
 			url := resolve(flagURL, "BUNNY_DB_URL", "Database URL: ")
 			authToken := resolve(flagAuthToken, "BUNNY_DB_TOKEN", "Auth Token: ")
@@ -31,25 +33,33 @@ func main() {
 				return fmt.Errorf("database URL is required")
 			}
 
-			welcomeMessage := "Bunny Database Shell\n\n"
-
 			config := shell.ShellConfig{
-				DbUri:          url,
-				AuthToken:      authToken,
-				InF:            os.Stdin,
-				OutF:           os.Stdout,
-				ErrF:           os.Stderr,
-				HistoryMode:    enums.PerDatabaseHistory,
-				HistoryName:    "bunny-database-shell",
-				WelcomeMessage: &welcomeMessage,
+				DbUri:       url,
+				AuthToken:   authToken,
+				InF:         os.Stdin,
+				OutF:        os.Stdout,
+				ErrF:        os.Stderr,
+				HistoryMode: enums.PerDatabaseHistory,
+				HistoryName: "bunny-database-shell",
 			}
 
+			stmt := flagExec
+			if stmt == "" && len(args) > 0 {
+				stmt = strings.Join(args, " ")
+			}
+			if stmt != "" {
+				return shell.RunShellLine(config, stmt)
+			}
+
+			welcomeMessage := "Bunny Database Shell\n\n"
+			config.WelcomeMessage = &welcomeMessage
 			return shell.RunShell(config)
 		},
 	}
 
 	rootCmd.Flags().StringVar(&flagURL, "url", "", "Bunny Database URL (libsql:// or wss://)")
 	rootCmd.Flags().StringVar(&flagAuthToken, "auth-token", "", "Authentication token")
+	rootCmd.Flags().StringVarP(&flagExec, "exec", "e", "", "Execute a SQL statement and exit")
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
