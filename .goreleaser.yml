@@ -22,7 +22,8 @@ builds:
       - >-
         {{- if eq .Os "darwin" }}SDKROOT={{ .Env.SDK_PATH }}{{- end }}
       - >-
-        {{- if eq .Os "darwin" }}CGO_CFLAGS=-isysroot {{ .Env.SDK_PATH }}{{- end }}
+        {{- if eq .Os "darwin" }}CGO_CFLAGS=-isysroot {{ .Env.SDK_PATH }}
+        {{- else if eq .Os "linux" }}CGO_CFLAGS=-D_LARGEFILE64_SOURCE{{- end }}
       - >-
         {{- if eq .Os "darwin" }}CGO_LDFLAGS=-isysroot {{ .Env.SDK_PATH }}{{- end }}
       - >-
@@ -47,7 +48,7 @@ builds:
         {{- end }}
 
 archives:
-  - format: binary
+  - format: raw
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
 
 checksum:
