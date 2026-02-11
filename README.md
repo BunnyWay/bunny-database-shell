@@ -4,38 +4,56 @@ Connect to a Bunny Database shell.
 
 ## Prerequisites
 
-- [Go](https://go.dev/dl/)
 - [Node.js](https://nodejs.org/)
 
-## Usage
-
-```sh
-npx bunny-database-shell --url <URL> --auth-token <TOKEN>
-```
-
-### Configuration
-
-Connection values are resolved in order:
-
-1. CLI flags (`--url`, `--auth-token`)
-2. `.env` file (`BUNNY_DB_URL`, `BUNNY_DB_TOKEN`)
-3. Interactive prompt
-
-### `.env` example
-
-```
-BUNNY_DB_URL=libsql://your-database.bunny.net
-BUNNY_DB_TOKEN=your-token
-```
-
-## Install globally
+## Install
 
 ```sh
 npm install -g bunny-database-shell
 ```
 
-Then run:
+Or run directly with `npx`:
+
+```sh
+npx bunny-database-shell
+```
+
+## Usage
+
+Connection values are resolved in order: CLI flags, `.env` file, then interactive prompt.
+
+### Open an interactive shell
+
+Pass your connection details as flags:
+
+```sh
+bunny-database-shell --url libsql://your-database.lite.bunnydb.net --auth-token your-token
+```
+
+Or use a `.env` file and the shell will connect automatically:
 
 ```sh
 bunny-database-shell
 ```
+
+If no flags or `.env` values are found, you'll be prompted to enter them.
+
+### Execute a single statement
+
+Run a SQL statement and exit without entering the interactive shell:
+
+```sh
+bunny-database-shell -e "SELECT * FROM users"
+bunny-database-shell "SELECT * FROM users"
+```
+
+### `.env` file
+
+Create a `.env` file in your working directory:
+
+```
+BUNNY_DB_URL=libsql://your-database.lite.bunnydb.net
+BUNNY_DB_TOKEN=your-token
+```
+
+This lets you run `bunny-database-shell` without passing flags every time.

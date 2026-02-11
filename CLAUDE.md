@@ -7,13 +7,15 @@ An NPM package that builds and runs a Go binary to connect to a Bunny Database s
 ## Architecture
 
 - **Go binary** (`cmd/bunny-database-shell/main.go`): Uses Cobra for CLI flag parsing and `libsql-shell-go/pkg/shell` for the interactive shell. Accepts `--url` and `--auth-token` flags. Values are resolved in order: CLI flags -> `.env` file (`BUNNY_DB_URL`, `BUNNY_DB_TOKEN`) -> interactive prompt.
-- **NPM package** (`package.json`): Publishes to NPM as `bunny-database-shell`. The `postinstall` script (`scripts/install.js`) compiles the Go binary into `bin/` on the user's machine. The `bin` field points to `./bin/bunny-database-shell`.
-- **No prebuilt binaries**: The Go binary is built from source at install time. Users need Go installed.
+- **NPM package** (`package.json`): Publishes to NPM as `bunny-database-shell`. The `bin` field points to `./bin/cli.js` (a Node wrapper that spawns the Go binary). The `postinstall` script (`scripts/install.js`) downloads the correct prebuilt binary from GitHub Releases.
+- **Prebuilt binaries**: CI cross-compiles for linux (x64/arm64), darwin (x64/arm64), and windows (x64). Binaries are attached to GitHub Releases and downloaded at install time. Users do NOT need Go installed.
 
 ## Key files
 
-- `cmd/bunny-database-shell/main.go` — CLI entry point
-- `scripts/install.js` — postinstall build script
+- `cmd/bunny-database-shell/main.go` — CLI entry point (Go source)
+- `bin/cli.js` — Node wrapper that npm links to, spawns the Go binary
+- `scripts/install.js` — postinstall script, downloads prebuilt binary from GitHub Releases
+- `.github/workflows/release.yml` — CI workflow, cross-compiles and creates GitHub Releases
 - `package.json` — NPM package config
 - `go.mod` / `go.sum` — Go module dependencies
 
@@ -31,7 +33,13 @@ Bunny Database URLs follow the same format as Turso (`libsql://`, `wss://`) but 
 ## Build & test
 
 ```sh
-go build -o bin/bunny-database-shell ./cmd/bunny-database-shell/   # build
-npm install                                                         # build via postinstall
+go build -o bin/bunny-database-shell ./cmd/bunny-database-shell/   # local dev build
+node bin/cli.js --help                                             # test wrapper
 npx bunny-database-shell --url <URL> --auth-token <TOKEN>          # run
 ```
+
+## Release flow
+
+1. Bump `version` in `package.json`
+2. `git commit -m "v{version}" && git tag v{version} && git push --tags`
+3. CI builds binaries via GoReleaser and creates GitHub Release, then publishes to NPM

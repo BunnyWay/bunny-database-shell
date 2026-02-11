@@ -3,20 +3,14 @@
   "version": "0.0.1",
   "description": "Connect to a Bunny Database shell",
   "bin": {
-    "bunny-database-shell": "./bin/bunny-database-shell"
+    "bunny-database-shell": "./bin/cli.js"
   },
   "scripts": {
-    "postinstall": "node scripts/install.js",
-    "changeset": "changeset",
-    "version": "changeset version",
-    "release": "changeset publish"
+    "postinstall": "node scripts/install.js"
   },
   "files": [
-    "bin",
-    "cmd",
-    "scripts",
-    "go.mod",
-    "go.sum"
+    "bin/cli.js",
+    "scripts"
   ],
   "keywords": [
     "bunny",
@@ -25,8 +19,5 @@
     "shell",
     "sql"
   ],
-  "license": "MIT",
-  "devDependencies": {
-    "@changesets/cli": "^2.29.8"
-  }
+  "license": "MIT"
 }

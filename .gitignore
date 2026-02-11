@@ -1,4 +1,5 @@
-bin/
+bin/bunny-database-shell
+bin/bunny-database-shell.exe
 node_modules/
 .claude
 .env

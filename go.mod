@@ -1,4 +1,4 @@
-module github.com/jamie-at-bunny/bunny-database-shell
+module github.com/BunnyWay/bunny-database-shell
 
 go 1.25.3
 
