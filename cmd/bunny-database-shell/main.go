@@ -51,7 +51,7 @@ func main() {
 				return shell.RunShellLine(config, stmt)
 			}
 
-			welcomeMessage := "Bunny Database Shell\n\n"
+			welcomeMessage := "\nYou are connected to your Bunny Database shell.\n\nType \".quit\" to exit, \".help\" for commands.\n\n"
 			config.WelcomeMessage = &welcomeMessage
 			return shell.RunShell(config)
 		},
