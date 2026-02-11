@@ -31,7 +31,7 @@ func main() {
 				return fmt.Errorf("database URL is required")
 			}
 
-			welcomeMessage := "Bunny Database Shell"
+			welcomeMessage := "Bunny Database Shell\n\n"
 
 			config := shell.ShellConfig{
 				DbUri:          url,
