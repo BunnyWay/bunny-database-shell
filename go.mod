@@ -6,6 +6,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/libsql/libsql-shell-go v0.10.6
 	github.com/spf13/cobra v1.10.2
+	golang.org/x/term v0.40.0
 )
 
 require (
@@ -24,5 +25,5 @@ require (
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/tursodatabase/libsql-client-go v0.0.0-20240902231107-85af5b9d094d // indirect
 	golang.org/x/exp v0.0.0-20240716160929-1d5bc16f04a8 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
 )
