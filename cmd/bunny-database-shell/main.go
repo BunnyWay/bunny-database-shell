@@ -10,6 +10,7 @@ import (
 	"github.com/libsql/libsql-shell-go/pkg/shell"
 	"github.com/libsql/libsql-shell-go/pkg/shell/enums"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 var (
@@ -26,8 +27,8 @@ func main() {
 		Short: "Connect to a Bunny Database shell",
 		Args:  cobra.ArbitraryArgs,
 		RunE: func(c *cobra.Command, args []string) error {
-			url := resolve(flagURL, "BUNNY_DB_URL", "Database URL: ")
-			authToken := resolve(flagAuthToken, "BUNNY_DB_TOKEN", "Auth Token: ")
+			url := resolve(flagURL, "BUNNY_DB_URL", "Database URL: ", false)
+			authToken := resolve(flagAuthToken, "BUNNY_DB_TOKEN", "Auth Token: ", true)
 
 			if url == "" {
 				return fmt.Errorf("database URL is required")
@@ -66,12 +67,15 @@ func main() {
 	}
 }
 
-func resolve(flag, envKey, promptLabel string) string {
+func resolve(flag, envKey, promptLabel string, secret bool) string {
 	if flag != "" {
 		return flag
 	}
 	if v := os.Getenv(envKey); v != "" {
 		return v
+	}
+	if secret {
+		return promptSecret(promptLabel)
 	}
 	return prompt(promptLabel)
 }
@@ -81,4 +85,14 @@ func prompt(label string) string {
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 	return strings.TrimSpace(input)
+}
+
+func promptSecret(label string) string {
+	fmt.Print(label)
+	b, err := term.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(b))
 }
