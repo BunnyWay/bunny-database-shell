@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"strings"
 
@@ -47,6 +49,9 @@ func main() {
 			stmt := flagExec
 			if stmt == "" && len(args) > 0 {
 				stmt = strings.Join(args, " ")
+			}
+			if stmt == ".dump" {
+				return dump(url, authToken)
 			}
 			if stmt != "" {
 				return shell.RunShellLine(config, stmt)
@@ -95,4 +100,47 @@ func promptSecret(label string) string {
 		return ""
 	}
 	return strings.TrimSpace(string(b))
+}
+
+func dumpURL(dbURL string) string {
+	switch {
+	case strings.HasPrefix(dbURL, "libsql://"):
+		return strings.Replace(dbURL, "libsql://", "https://", 1)
+	case strings.HasPrefix(dbURL, "wss://"):
+		return strings.Replace(dbURL, "wss://", "https://", 1)
+	case strings.HasPrefix(dbURL, "ws://"):
+		return strings.Replace(dbURL, "ws://", "http://", 1)
+	default:
+		return dbURL
+	}
+}
+
+func dump(dbURL, authToken string) error {
+	req, err := http.NewRequest("GET", dumpURL(dbURL)+"/dump", nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Authorization", "Bearer "+authToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("dump failed (HTTP %d): %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	}
+
+	reader := bufio.NewReader(resp.Body)
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return err
+		}
+		fmt.Print(line)
+		if err == io.EOF {
+			return nil
+		}
+	}
 }
